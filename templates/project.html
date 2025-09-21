@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - Chatbot Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>{{ project.name }}</h1>
+            <a href="/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Sidebar -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>System Prompts</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/projects/{{ project.id }}/prompts">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="text" rows="4" placeholder="Enter system prompt..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Add Prompt</button>
+                </form>
+                
+                {% if prompts %}
+                <hr>
+                <h6>Existing Prompts:</h6>
+                {% for prompt in prompts %}
+                <div class="mb-2 p-2 bg-light rounded">
+                    <small class="text-muted">{{ prompt.text[:100] }}{% if prompt.text|length > 100 %}...{% endif %}</small>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>File Upload</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/projects/{{ project.id }}/upload" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" class="form-control" name="file" required>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-success">Upload File</button>
+                </form>
+                
+                {% if files %}
+                <hr>
+                <h6>Uploaded Files:</h6>
+                {% for file in files %}
+                <div class="mb-2">
+                    <a href="/files/{{ file.id }}" class="text-decoration-none">
+                        <small>{{ file.filename }}</small>
+                    </a>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Interface -->
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h5>Chat</h5>
+            </div>
+            <div class="card-body">
+                <div id="chat-messages" class="mb-3" style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px;">
+                    {% for message in messages|reverse %}
+                    <div class="mb-3">
+                        <div class="d-flex {% if message.role == 'user' %}justify-content-end{% else %}justify-content-start{% endif %}">
+                            <div class="{% if message.role == 'user' %}bg-primary text-white{% else %}bg-light{% endif %} p-2 rounded" style="max-width: 70%;">
+                                <strong>{{ message.role.title() }}:</strong><br>
+                                {{ message.content }}
+                            </div>
+                        </div>
+                        <small class="text-muted {% if message.role == 'user' %}text-end{% else %}text-start{% endif %} d-block">
+                            {{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <form method="post" action="/projects/{{ project.id }}/chat" id="chat-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="message" placeholder="Type your message..." required>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-scroll to bottom of chat
+document.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+// Handle form submission with AJAX for better UX
+document.getElementById('chat-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const message = formData.get('message');
+    
+    // Add user message to chat immediately
+    const chatMessages = document.getElementById('chat-messages');
+    const userMessageDiv = document.createElement('div');
+    userMessageDiv.className = 'mb-3';
+    userMessageDiv.innerHTML = `
+        <div class="d-flex justify-content-end">
+            <div class="bg-primary text-white p-2 rounded" style="max-width: 70%;">
+                <strong>User:</strong><br>
+                ${message}
+            </div>
+        </div>
+        <small class="text-muted text-end d-block">
+            ${new Date().toLocaleString()}
+        </small>
+    `;
+    chatMessages.appendChild(userMessageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Clear input
+    this.querySelector('input[name="message"]').value = '';
+    
+    // Show loading message
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'mb-3';
+    loadingDiv.innerHTML = `
+        <div class="d-flex justify-content-start">
+            <div class="bg-light p-2 rounded" style="max-width: 70%;">
+                <strong>Assistant:</strong><br>
+                <em>Thinking...</em>
+            </div>
+        </div>
+    `;
+    chatMessages.appendChild(loadingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Submit form
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            // Reload page to show the response
+            window.location.reload();
+        } else {
+            // Remove loading message and show error
+            loadingDiv.remove();
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'mb-3';
+            errorDiv.innerHTML = `
+                <div class="d-flex justify-content-start">
+                    <div class="bg-danger text-white p-2 rounded" style="max-width: 70%;">
+                        <strong>Error:</strong><br>
+                        Failed to send message
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(errorDiv);
+        }
+    });
+});
+</script>
+{% endblock %}
