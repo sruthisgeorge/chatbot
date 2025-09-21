@@ -14,24 +14,24 @@ A minimalistic chatbot platform built with FastAPI, SQLite, and OpenRouter API. 
 ## Project Structure
 
 ```
-├── main.py              # FastAPI application entry point
-├── models.py            # SQLAlchemy ORM models
-├── auth.py              # Authentication utilities (JWT, bcrypt)
-├── crud.py              # Database CRUD operations
-├── database.py          # Database configuration
-├── chatbot.py           # OpenAI ChatBot integration class
-├── config.py            # Configuration management
-├── test_chatbot.py      # ChatBot testing script
-├── requirements.txt     # Python dependencies
-├── templates/           # Jinja2 HTML templates
-│   ├── base.html
-│   ├── login.html
-│   ├── register.html
-│   ├── dashboard.html
-│   └── project.html
-├── static/              # Static files (CSS, JS)
-│   └── style.css
-└── uploads/             # File upload directory (created automatically)
+ main.py              # FastAPI application entry point
+ models.py            # SQLAlchemy ORM models
+ auth.py              # Authentication utilities (JWT, bcrypt)
+ crud.py              # Database CRUD operations
+ database.py          # Database configuration
+ chatbot.py           # OpenAI ChatBot integration class
+ config.py            # Configuration management
+ test_chatbot.py      # ChatBot testing script
+ requirements.txt     # Python dependencies
+ templates/           # Jinja2 HTML templates
+    base.html
+    login.html
+    register.html
+    dashboard.html
+    project.html
+ static/              # Static files (CSS, JS)
+    style.css
+ uploads/             # File upload directory (created automatically)
 ```
 
 ## Installation
@@ -66,6 +66,28 @@ A minimalistic chatbot platform built with FastAPI, SQLite, and OpenRouter API. 
 
 6. **Access the application**:
    Open your browser and go to `http://localhost:8000`
+
+## Railway Deployment
+
+This application is ready for deployment on Railway. See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) for detailed deployment instructions.
+
+### Quick Railway Deployment
+
+1. **Push to GitHub**: Ensure your code is in a GitHub repository
+2. **Connect to Railway**: Go to [railway.app](https://railway.app) and connect your repository
+3. **Set Environment Variables**:
+   - `OPENROUTER_API_KEY`: Your OpenRouter API key
+   - `SECRET_KEY`: A secure secret key for JWT tokens
+4. **Add PostgreSQL**: Add a PostgreSQL database service in Railway
+5. **Deploy**: Railway will automatically deploy your application
+
+The application includes:
+- Railway configuration files (`railway.json`, `Procfile`)
+- Production startup script (`start_server.py`)
+- Docker support (`Dockerfile`)
+- Health check endpoints (`/health`)
+- PostgreSQL support for production
+- Environment variable configuration
 
 ## Usage
 
@@ -136,10 +158,10 @@ The `ChatBot` class provides these methods:
 
 ### Relationships
 
-- User → Projects (one-to-many)
-- Project → Prompts (one-to-many)
-- Project → Messages (one-to-many)
-- Project → Files (one-to-many)
+- User  Projects (one-to-many)
+- Project  Prompts (one-to-many)
+- Project  Messages (one-to-many)
+- Project  Files (one-to-many)
 
 ## Security Features
 

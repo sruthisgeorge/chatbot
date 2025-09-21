@@ -24,12 +24,12 @@ def test_authentication():
         print(f"Registration response status: {response.status_code}")
         
         if response.status_code == 302:  # Redirect to dashboard
-            print("✅ Registration successful - redirected to dashboard")
+            print(" Registration successful - redirected to dashboard")
         else:
-            print(f"❌ Registration failed: {response.text}")
+            print(f" Registration failed: {response.text}")
             return False
     except requests.exceptions.ConnectionError:
-        print("❌ Could not connect to server. Make sure the server is running on http://localhost:8000")
+        print(" Could not connect to server. Make sure the server is running on http://localhost:8000")
         return False
     
     # Test login
@@ -44,20 +44,20 @@ def test_authentication():
         print(f"Login response status: {response.status_code}")
         
         if response.status_code == 302:  # Redirect to dashboard
-            print("✅ Login successful - redirected to dashboard")
+            print(" Login successful - redirected to dashboard")
             
             # Check if cookie is set
             cookies = response.cookies
             if 'access_token' in cookies:
-                print("✅ Access token cookie is set")
+                print(" Access token cookie is set")
             else:
-                print("❌ Access token cookie not found")
+                print(" Access token cookie not found")
                 return False
         else:
-            print(f"❌ Login failed: {response.text}")
+            print(f" Login failed: {response.text}")
             return False
     except requests.exceptions.ConnectionError:
-        print("❌ Could not connect to server")
+        print(" Could not connect to server")
         return False
     
     # Test dashboard access
@@ -75,29 +75,29 @@ def test_authentication():
             print(f"Dashboard response status: {dashboard_response.status_code}")
             
             if dashboard_response.status_code == 200:
-                print("✅ Dashboard access successful")
+                print(" Dashboard access successful")
                 return True
             else:
-                print(f"❌ Dashboard access failed: {dashboard_response.status_code}")
+                print(f" Dashboard access failed: {dashboard_response.status_code}")
                 return False
         else:
-            print("❌ Login failed during dashboard test")
+            print(" Login failed during dashboard test")
             return False
             
     except requests.exceptions.ConnectionError:
-        print("❌ Could not connect to server")
+        print(" Could not connect to server")
         return False
 
 if __name__ == "__main__":
-    print("🔐 Authentication Test Script")
+    print(" Authentication Test Script")
     print("=" * 40)
     
     success = test_authentication()
     
     if success:
-        print("\n🎉 All authentication tests passed!")
+        print("\n All authentication tests passed!")
     else:
-        print("\n❌ Authentication tests failed!")
+        print("\n Authentication tests failed!")
         print("\nTo run the server:")
         print("cd /Users/sruthigeorge/code_base")
         print("uvicorn main:app --reload --port 8000")

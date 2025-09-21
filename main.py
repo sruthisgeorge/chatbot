@@ -25,6 +25,7 @@ from crud import (
     get_messages_by_project, create_file, get_files_by_project, delete_file
 )
 from chatbot import ChatBot
+from config import Config
 
 # Initialize FastAPI app
 app = FastAPI(title="Chatbot Platform", version="1.0.0")
@@ -101,8 +102,31 @@ async def root(request: Request):
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {"status": "ok", "message": "Chatbot Platform is running"}
+    """Health check endpoint for Railway monitoring"""
+    try:
+        # Check database connection
+        db = next(get_db())
+        db.execute("SELECT 1")
+        db.close()
+        
+        # Check ChatBot initialization
+        chatbot_status = "initialized" if chatbot else "not_initialized"
+        
+        return {
+            "status": "healthy",
+            "message": "Chatbot Platform is running",
+            "database": "connected",
+            "chatbot": chatbot_status,
+            "model": Config.OPENROUTER_MODEL if chatbot else "none",
+            "environment": Config.ENVIRONMENT
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "message": f"Health check failed: {str(e)}",
+            "database": "disconnected",
+            "chatbot": "error"
+        }
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):

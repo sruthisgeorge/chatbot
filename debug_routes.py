@@ -10,7 +10,7 @@ BASE_URL = "http://localhost:8000"
 
 def test_specific_routes():
     """Test specific routes that might be causing Method Not Allowed errors"""
-    print("🔍 Testing Specific Routes for Method Not Allowed Errors")
+    print("Testing Specific Routes for Method Not Allowed Errors")
     print("=" * 60)
     
     # Test routes that commonly cause Method Not Allowed errors
@@ -68,7 +68,7 @@ def test_specific_routes():
             
             if is_method_not_allowed:
                 method_not_allowed_count += 1
-                print(f"❌ METHOD NOT ALLOWED: {method} {endpoint}")
+                print(f"METHOD NOT ALLOWED: {method} {endpoint}")
                 print(f"   Expected: {expected_status}, Got: {response.status_code}")
                 print(f"   Description: {description}")
                 try:
@@ -79,28 +79,28 @@ def test_specific_routes():
                 print()
             elif not status_ok:
                 other_errors += 1
-                print(f"⚠️  {method} {endpoint} - Status: {response.status_code} (Expected: {expected_status})")
+                print(f"WARNING: {method} {endpoint} - Status: {response.status_code} (Expected: {expected_status})")
                 print(f"   Description: {description}")
             else:
-                print(f"✅ {method} {endpoint} - OK")
+                print(f"OK: {method} {endpoint} - OK")
                 
         except requests.exceptions.ConnectionError:
-            print(f"❌ Connection Error: {method} {endpoint}")
+            print(f"Connection Error: {method} {endpoint}")
             print("   Make sure the server is running: uvicorn main:app --reload --port 8000")
             break
         except Exception as e:
-            print(f"❌ Error testing {method} {endpoint}: {str(e)}")
+            print(f"Error testing {method} {endpoint}: {str(e)}")
     
     print("=" * 60)
-    print(f"📊 Results:")
+    print(f"Results:")
     print(f"   Method Not Allowed errors: {method_not_allowed_count}")
     print(f"   Other errors: {other_errors}")
     
     if method_not_allowed_count > 0:
-        print(f"\n🔧 Fix needed: {method_not_allowed_count} routes have Method Not Allowed errors")
+        print(f"\nFix needed: {method_not_allowed_count} routes have Method Not Allowed errors")
         print("   These routes need proper HTTP method definitions")
     else:
-        print(f"\n✅ No Method Not Allowed errors found!")
+        print(f"\nNo Method Not Allowed errors found!")
 
 if __name__ == "__main__":
     test_specific_routes()

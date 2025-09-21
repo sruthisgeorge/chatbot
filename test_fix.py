@@ -10,7 +10,7 @@ BASE_URL = "http://localhost:8000"
 
 def test_method_not_allowed_fix():
     """Test that Method Not Allowed errors are fixed"""
-    print("🔧 Testing Method Not Allowed Fix")
+    print(" Testing Method Not Allowed Fix")
     print("=" * 50)
     
     # Test the specific routes that were causing issues
@@ -43,7 +43,7 @@ def test_method_not_allowed_fix():
             
             if is_method_not_allowed:
                 method_not_allowed_count += 1
-                print(f"❌ METHOD NOT ALLOWED: {method} {endpoint}")
+                print(f" METHOD NOT ALLOWED: {method} {endpoint}")
                 print(f"   Description: {description}")
                 print(f"   Status: {response.status_code}")
                 try:
@@ -55,27 +55,27 @@ def test_method_not_allowed_fix():
             elif is_success:
                 success_count += 1
                 status_type = "OK" if response.status_code == 200 else "Redirect" if response.status_code in [302, 303] else "Auth Required"
-                print(f"✅ {method} {endpoint} - {status_type} ({response.status_code})")
+                print(f" {method} {endpoint} - {status_type} ({response.status_code})")
             else:
-                print(f"⚠️  {method} {endpoint} - Unexpected status: {response.status_code}")
+                print(f"  {method} {endpoint} - Unexpected status: {response.status_code}")
                 
         except requests.exceptions.ConnectionError:
-            print(f"❌ Connection Error: {method} {endpoint}")
+            print(f" Connection Error: {method} {endpoint}")
             print("   Make sure the server is running: uvicorn main:app --reload --port 8000")
             break
         except Exception as e:
-            print(f"❌ Error testing {method} {endpoint}: {str(e)}")
+            print(f" Error testing {method} {endpoint}: {str(e)}")
     
     print("=" * 50)
-    print(f"📊 Results:")
+    print(f" Results:")
     print(f"   Method Not Allowed errors: {method_not_allowed_count}")
     print(f"   Successful requests: {success_count}")
     
     if method_not_allowed_count == 0:
-        print(f"\n🎉 SUCCESS! No Method Not Allowed errors found!")
+        print(f"\n SUCCESS! No Method Not Allowed errors found!")
         print("   The fix is working correctly.")
     else:
-        print(f"\n❌ Still have {method_not_allowed_count} Method Not Allowed errors")
+        print(f"\n Still have {method_not_allowed_count} Method Not Allowed errors")
         print("   The fix needs more work.")
 
 if __name__ == "__main__":

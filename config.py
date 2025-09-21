@@ -9,7 +9,7 @@ class Config:
     
     # OpenRouter Configuration
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-    OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "x-ai/grok-2-1212")  # Grok 4 model
+    OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "x-ai/grok-4-fast:free")  # Grok 4 model
     
     # Database Configuration
     DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./chatbot.db")
@@ -21,6 +21,14 @@ class Config:
     # File Upload Configuration
     UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
     MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", "10485760"))  # 10MB default
+    
+    # Production Configuration
+    ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+    DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+    
+    # Railway Configuration
+    PORT = int(os.getenv("PORT", "8000"))
+    HOST = os.getenv("HOST", "0.0.0.0")
     
     @classmethod
     def validate_openrouter_config(cls):

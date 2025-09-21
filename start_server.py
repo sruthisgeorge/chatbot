@@ -1,45 +1,39 @@
 #!/usr/bin/env python3
 """
-Startup script for the Chatbot Platform
+Production startup script for Railway deployment.
 """
 
-import uvicorn
 import os
-import sys
+import uvicorn
+from config import Config
 
 def main():
-    """Start the FastAPI server"""
-    print("🚀 Starting Chatbot Platform...")
-    print("=" * 40)
+    """Start the FastAPI server with production settings."""
     
-    # Check if we're in the right directory
-    if not os.path.exists("main.py"):
-        print("❌ Error: main.py not found. Please run this script from the project root directory.")
-        sys.exit(1)
+    # Get configuration from environment variables
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
     
-    # Create uploads directory if it doesn't exist
-    os.makedirs("uploads", exist_ok=True)
-    print("📁 Created uploads directory")
+    # Validate required environment variables
+    is_valid, message = Config.validate_openrouter_config()
+    if not is_valid:
+        print(f"Configuration Error: {message}")
+        print("Please set the OPENROUTER_API_KEY environment variable in Railway.")
+        exit(1)
     
-    # Start the server
-    print("🌐 Server starting on http://localhost:8000")
-    print("📝 API docs available at http://localhost:8000/docs")
-    print("🔄 Press Ctrl+C to stop the server")
-    print("=" * 40)
+    print(f"Starting Chatbot Platform on {host}:{port}")
+    print(f"Using model: {Config.OPENROUTER_MODEL}")
+    print(f"Health check available at: http://{host}:{port}/health")
     
-    try:
-        uvicorn.run(
-            "main:app",
-            host="0.0.0.0",
-            port=8000,
-            reload=True,
-            log_level="info"
-        )
-    except KeyboardInterrupt:
-        print("\n👋 Server stopped by user")
-    except Exception as e:
-        print(f"❌ Error starting server: {e}")
-        sys.exit(1)
+    # Start the server with production settings
+    uvicorn.run(
+        "main:app",
+        host=host,
+        port=port,
+        workers=1,  # Railway handles scaling
+        access_log=True,
+        log_level="info"
+    )
 
 if __name__ == "__main__":
     main()

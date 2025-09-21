@@ -19,16 +19,16 @@ def test_chatbot_initialization():
     print(f"Config validation: {message}")
     
     if not is_valid:
-        print("❌ OpenRouter API key not configured. Please set OPENROUTER_API_KEY environment variable.")
+        print("OpenRouter API key not configured. Please set OPENROUTER_API_KEY environment variable.")
         print("   You can get an API key from: https://openrouter.ai/")
         return False
     
     try:
         chatbot = ChatBot()
-        print("✅ ChatBot initialized successfully with Grok 4")
+        print("ChatBot initialized successfully with Grok 4")
         return chatbot
     except Exception as e:
-        print(f"❌ ChatBot initialization failed: {e}")
+        print(f"ChatBot initialization failed: {e}")
         return False
 
 async def test_chatbot_functionality(chatbot):
@@ -37,18 +37,18 @@ async def test_chatbot_functionality(chatbot):
     
     # Test API key validation
     if await chatbot.validate_api_key():
-        print("✅ API key is valid")
+        print("API key is valid")
     else:
-        print("❌ API key validation failed")
+        print("API key validation failed")
         return False
     
     # Test basic chat
     try:
         response = await chatbot.chat("Hello, how are you?")
-        print(f"✅ Chat response received: {response[:100]}...")
+        print(f"Chat response received: {response[:100]}...")
         return True
     except Exception as e:
-        print(f"❌ Chat test failed: {e}")
+        print(f"Chat test failed: {e}")
         return False
 
 async def test_chatbot_with_context(chatbot):
@@ -66,10 +66,10 @@ async def test_chatbot_with_context(chatbot):
             "What's my name?", 
             conversation_history=conversation_history
         )
-        print(f"✅ Context-aware response: {response[:100]}...")
+        print(f"Context-aware response: {response[:100]}...")
         return True
     except Exception as e:
-        print(f"❌ Context test failed: {e}")
+        print(f"Context test failed: {e}")
         return False
 
 async def test_available_models(chatbot):
@@ -78,19 +78,19 @@ async def test_available_models(chatbot):
     
     try:
         models = await chatbot.get_available_models()
-        print(f"✅ Available models: {len(models)} models found")
+        print(f"Available models: {len(models)} models found")
         if "x-ai/grok-2-1212" in models:
-            print("✅ Grok 4 model is available")
+            print("Grok 4 model is available")
         else:
-            print("⚠️  Grok 4 model not found in available models")
+            print("Grok 4 model not found in available models")
         return True
     except Exception as e:
-        print(f"❌ Models test failed: {e}")
+        print(f"Models test failed: {e}")
         return False
 
 async def main():
     """Main test function"""
-    print("🤖 ChatBot Integration Test (OpenRouter + Grok 4)")
+    print("ChatBot Integration Test (OpenRouter + Grok 4)")
     print("=" * 50)
     
     # Test initialization
@@ -110,7 +110,7 @@ async def main():
     if not await test_available_models(chatbot):
         sys.exit(1)
     
-    print("\n🎉 All tests passed! ChatBot integration is working correctly.")
+    print("\nAll tests passed! ChatBot integration is working correctly.")
     print("\nTo use the chatbot in your application:")
     print("1. Make sure OPENROUTER_API_KEY is set in your environment")
     print("2. Start the FastAPI server with: python main.py")
