@@ -1,34 +1,33 @@
 import os
-import openai
+import httpx
+import asyncio
 from typing import List, Dict, Optional
 from config import Config
 
 class ChatBot:
     """
-    A chatbot class that integrates with OpenAI's API to provide conversational AI capabilities.
+    A chatbot class that integrates with OpenRouter's API to provide conversational AI capabilities using Grok 4.
     """
     
     def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         """
-        Initialize the ChatBot with OpenAI API configuration.
+        Initialize the ChatBot with OpenRouter API configuration.
         
         Args:
-            api_key: OpenAI API key. If not provided, will try to get from Config
-            model: The OpenAI model to use. If not provided, will use Config default
+            api_key: OpenRouter API key. If not provided, will try to get from Config
+            model: The model to use. If not provided, will use Config default (Grok 4)
         """
-        self.api_key = api_key or Config.OPENAI_API_KEY
-        self.model = model or Config.OPENAI_MODEL
+        self.api_key = api_key or Config.OPENROUTER_API_KEY
+        self.model = model or Config.OPENROUTER_MODEL
+        self.base_url = "https://openrouter.ai/api/v1"
         
         if not self.api_key:
-            raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY environment variable or pass api_key parameter.")
-        
-        # Initialize OpenAI client
-        self.client = openai.OpenAI(api_key=self.api_key)
+            raise ValueError("OpenRouter API key is required. Set OPENROUTER_API_KEY environment variable or pass api_key parameter.")
         
         # Default system prompt
-        self.default_system_prompt = "You are a helpful AI assistant. Provide clear, accurate, and helpful responses to user questions."
+        self.default_system_prompt = "You are Grok, a helpful AI assistant with a witty and engaging personality. Provide clear, accurate, and helpful responses to user questions while maintaining your characteristic humor and directness."
     
-    def chat(self, message: str, system_prompt: Optional[str] = None, conversation_history: Optional[List[Dict[str, str]]] = None) -> str:
+    async def chat(self, message: str, system_prompt: Optional[str] = None, conversation_history: Optional[List[Dict[str, str]]] = None) -> str:
         """
         Send a message to the chatbot and get a response.
         
@@ -55,27 +54,46 @@ class ChatBot:
             # Add current user message
             messages.append({"role": "user", "content": message})
             
-            # Make API call to OpenAI
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                max_tokens=1000,
-                temperature=0.7
-            )
+            # Prepare the request payload
+            payload = {
+                "model": self.model,
+                "messages": messages,
+                "max_tokens": 1000,
+                "temperature": 0.7
+            }
             
-            # Extract and return the response
-            return response.choices[0].message.content.strip()
+            # Make API call to OpenRouter
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": "https://github.com/your-repo",  # Optional: for tracking
+                        "X-Title": "Chatbot Platform"  # Optional: for tracking
+                    },
+                    json=payload,
+                    timeout=30.0
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    return data["choices"][0]["message"]["content"].strip()
+                else:
+                    error_data = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+                    error_msg = error_data.get("error", {}).get("message", f"HTTP {response.status_code}")
+                    return f"OpenRouter API Error: {error_msg}"
             
-        except openai.APIError as e:
-            return f"OpenAI API Error: {str(e)}"
-        except openai.RateLimitError as e:
-            return f"Rate limit exceeded. Please try again later. Error: {str(e)}"
-        except openai.APIConnectionError as e:
-            return f"Connection error. Please check your internet connection. Error: {str(e)}"
+        except httpx.TimeoutException:
+            return "Request timeout. Please try again later."
+        except httpx.ConnectError:
+            return "Connection error. Please check your internet connection."
+        except httpx.HTTPStatusError as e:
+            return f"HTTP Error {e.response.status_code}: {e.response.text}"
         except Exception as e:
             return f"An unexpected error occurred: {str(e)}"
     
-    def chat_with_context(self, message: str, system_prompt: Optional[str] = None, project_messages: Optional[List[Dict[str, str]]] = None) -> str:
+    async def chat_with_context(self, message: str, system_prompt: Optional[str] = None, project_messages: Optional[List[Dict[str, str]]] = None) -> str:
         """
         Send a message with project-specific context from previous messages.
         
@@ -87,7 +105,7 @@ class ChatBot:
         Returns:
             The chatbot's response as a string
         """
-        # Convert project messages to OpenAI format
+        # Convert project messages to OpenRouter format
         conversation_history = []
         if project_messages:
             # Take the last 10 messages to avoid token limits
@@ -98,7 +116,7 @@ class ChatBot:
                     "content": msg.get("content", "")
                 })
         
-        return self.chat(message, system_prompt, conversation_history)
+        return await self.chat(message, system_prompt, conversation_history)
     
     def set_model(self, model: str):
         """

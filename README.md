@@ -1,6 +1,6 @@
 # Chatbot Platform
 
-A minimalistic chatbot platform built with FastAPI, SQLite, and OpenAI API. This platform allows users to create projects/agents, manage prompts, and chat with AI models using OpenAI's GPT models.
+A minimalistic chatbot platform built with FastAPI, SQLite, and OpenRouter API. This platform allows users to create projects/agents, manage prompts, and chat with AI models using Grok 4 and other advanced models through OpenRouter.
 
 ## Features
 
@@ -43,15 +43,15 @@ A minimalistic chatbot platform built with FastAPI, SQLite, and OpenAI API. This
    pip install -r requirements.txt
    ```
 
-3. **Configure OpenAI API**:
-   - Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+3. **Configure OpenRouter API**:
+   - Get your API key from [OpenRouter](https://openrouter.ai/)
    - Set the environment variable:
      ```bash
-     export OPENAI_API_KEY="your_api_key_here"
+     export OPENROUTER_API_KEY="your_api_key_here"
      ```
    - Or create a `.env` file with:
      ```
-     OPENAI_API_KEY=your_api_key_here
+     OPENROUTER_API_KEY=your_api_key_here
      ```
 
 4. **Test the ChatBot integration** (optional):
@@ -99,29 +99,30 @@ A minimalistic chatbot platform built with FastAPI, SQLite, and OpenAI API. This
 
 You can set these environment variables to customize the application:
 
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
-- `OPENAI_MODEL`: OpenAI model to use (default: "gpt-3.5-turbo")
+- `OPENROUTER_API_KEY`: Your OpenRouter API key (required)
+- `OPENROUTER_MODEL`: Model to use (default: "x-ai/grok-2-1212" for Grok 4)
 - `SECRET_KEY`: JWT secret key (default: "your-secret-key-change-in-production")
 - `DATABASE_URL`: Database connection string (default: "sqlite:///./chatbot.db")
 - `ACCESS_TOKEN_EXPIRE_MINUTES`: JWT token expiration time (default: 30)
 - `MAX_FILE_SIZE`: Maximum file upload size in bytes (default: 10485760 = 10MB)
 
-### OpenAI Integration
+### OpenRouter Integration
 
-The platform now includes full OpenAI integration through the `ChatBot` class:
+The platform now includes full OpenRouter integration through the `ChatBot` class:
 
 - **Automatic API Key Management**: Uses environment variables or config
 - **Conversation Context**: Maintains chat history for better responses
 - **Error Handling**: Graceful handling of API errors and rate limits
-- **Model Selection**: Support for different OpenAI models (GPT-3.5, GPT-4, etc.)
+- **Model Selection**: Support for multiple AI models including Grok 4, Claude, GPT, and more
 - **System Prompts**: Custom system prompts per project
+- **Grok 4 Personality**: Default system prompt includes Grok's characteristic wit and directness
 
 The `ChatBot` class provides these methods:
 - `chat()`: Basic chat functionality
 - `chat_with_context()`: Chat with conversation history
-- `set_model()`: Change the OpenAI model
+- `set_model()`: Change the AI model
 - `validate_api_key()`: Test API key validity
-- `get_available_models()`: List available models
+- `get_available_models()`: List available models from OpenRouter
 
 ## Database Schema
 
@@ -176,10 +177,11 @@ To reset the database, simply delete the `chatbot.db` file and restart the appli
 2. **Database errors**: Delete `chatbot.db` and restart
 3. **Import errors**: Ensure all dependencies are installed
 4. **File upload issues**: Check that the `uploads/` directory exists and is writable
-5. **OpenAI API errors**: 
+5. **OpenRouter API errors**: 
    - Verify your API key is correct and has sufficient credits
    - Check your internet connection
    - Ensure you're not hitting rate limits
+   - Verify the model (x-ai/grok-2-1212) is available
    - Run `python test_chatbot.py` to diagnose issues
 
 ### Logs

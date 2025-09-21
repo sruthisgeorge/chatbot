@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Test script for the ChatBot integration.
+Test script for the ChatBot integration with OpenRouter and Grok 4.
 This script tests the ChatBot class without requiring the full FastAPI application.
 """
 
 import os
 import sys
+import asyncio
 from chatbot import ChatBot
 from config import Config
 
@@ -14,28 +15,28 @@ def test_chatbot_initialization():
     print("Testing ChatBot initialization...")
     
     # Check if API key is configured
-    is_valid, message = Config.validate_openai_config()
+    is_valid, message = Config.validate_openrouter_config()
     print(f"Config validation: {message}")
     
     if not is_valid:
-        print("❌ OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.")
-        print("   You can get an API key from: https://platform.openai.com/api-keys")
+        print("❌ OpenRouter API key not configured. Please set OPENROUTER_API_KEY environment variable.")
+        print("   You can get an API key from: https://openrouter.ai/")
         return False
     
     try:
         chatbot = ChatBot()
-        print("✅ ChatBot initialized successfully")
+        print("✅ ChatBot initialized successfully with Grok 4")
         return chatbot
     except Exception as e:
         print(f"❌ ChatBot initialization failed: {e}")
         return False
 
-def test_chatbot_functionality(chatbot):
+async def test_chatbot_functionality(chatbot):
     """Test basic ChatBot functionality"""
     print("\nTesting ChatBot functionality...")
     
     # Test API key validation
-    if chatbot.validate_api_key():
+    if await chatbot.validate_api_key():
         print("✅ API key is valid")
     else:
         print("❌ API key validation failed")
@@ -43,14 +44,14 @@ def test_chatbot_functionality(chatbot):
     
     # Test basic chat
     try:
-        response = chatbot.chat("Hello, how are you?")
+        response = await chatbot.chat("Hello, how are you?")
         print(f"✅ Chat response received: {response[:100]}...")
         return True
     except Exception as e:
         print(f"❌ Chat test failed: {e}")
         return False
 
-def test_chatbot_with_context(chatbot):
+async def test_chatbot_with_context(chatbot):
     """Test ChatBot with conversation history"""
     print("\nTesting ChatBot with context...")
     
@@ -61,7 +62,7 @@ def test_chatbot_with_context(chatbot):
             {"role": "assistant", "content": "Nice to meet you, John!"}
         ]
         
-        response = chatbot.chat(
+        response = await chatbot.chat(
             "What's my name?", 
             conversation_history=conversation_history
         )
@@ -71,10 +72,26 @@ def test_chatbot_with_context(chatbot):
         print(f"❌ Context test failed: {e}")
         return False
 
-def main():
+async def test_available_models(chatbot):
+    """Test getting available models"""
+    print("\nTesting available models...")
+    
+    try:
+        models = await chatbot.get_available_models()
+        print(f"✅ Available models: {len(models)} models found")
+        if "x-ai/grok-2-1212" in models:
+            print("✅ Grok 4 model is available")
+        else:
+            print("⚠️  Grok 4 model not found in available models")
+        return True
+    except Exception as e:
+        print(f"❌ Models test failed: {e}")
+        return False
+
+async def main():
     """Main test function"""
-    print("🤖 ChatBot Integration Test")
-    print("=" * 40)
+    print("🤖 ChatBot Integration Test (OpenRouter + Grok 4)")
+    print("=" * 50)
     
     # Test initialization
     chatbot = test_chatbot_initialization()
@@ -82,18 +99,22 @@ def main():
         sys.exit(1)
     
     # Test basic functionality
-    if not test_chatbot_functionality(chatbot):
+    if not await test_chatbot_functionality(chatbot):
         sys.exit(1)
     
     # Test context functionality
-    if not test_chatbot_with_context(chatbot):
+    if not await test_chatbot_with_context(chatbot):
+        sys.exit(1)
+    
+    # Test available models
+    if not await test_available_models(chatbot):
         sys.exit(1)
     
     print("\n🎉 All tests passed! ChatBot integration is working correctly.")
     print("\nTo use the chatbot in your application:")
-    print("1. Make sure OPENAI_API_KEY is set in your environment")
+    print("1. Make sure OPENROUTER_API_KEY is set in your environment")
     print("2. Start the FastAPI server with: python main.py")
-    print("3. Navigate to a project and start chatting!")
+    print("3. Navigate to a project and start chatting with Grok 4!")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

@@ -43,17 +43,17 @@ os.makedirs("uploads", exist_ok=True)
 
 # Initialize ChatBot instance
 try:
-    chatbot = ChatBot()
-    print("ChatBot initialized successfully")
+    chatbot = ChatBot(model="x-ai/grok-4-fast:free")
+    print("ChatBot initialized successfully with Grok 4")
 except ValueError as e:
     print(f"Warning: ChatBot initialization failed: {e}")
     chatbot = None
 
-# LLM API endpoint using OpenAI
+# LLM API endpoint using OpenRouter
 async def call_llm_api(message: str, system_prompt: str = "", project_messages: list = None) -> str:
-    """Call OpenAI API through ChatBot class"""
+    """Call OpenRouter API through ChatBot class"""
     if not chatbot:
-        return "Error: ChatBot not initialized. Please check your OpenAI API key configuration."
+        return "Error: ChatBot not initialized. Please check your OpenRouter API key configuration."
     
     try:
         # Convert project messages to the format expected by ChatBot
@@ -65,14 +65,14 @@ async def call_llm_api(message: str, system_prompt: str = "", project_messages: 
                     "content": msg.content
                 })
         
-        response = chatbot.chat_with_context(
+        response = await chatbot.chat_with_context(
             message=message,
             system_prompt=system_prompt,
             project_messages=formatted_messages
         )
         return response
     except Exception as e:
-        return f"Error calling OpenAI API: {str(e)}"
+        return f"Error calling OpenRouter API: {str(e)}"
 
 # Authentication routes
 @app.post("/token")
